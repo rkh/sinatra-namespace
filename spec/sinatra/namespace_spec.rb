@@ -148,6 +148,16 @@ describe Sinatra::Namespace do
           browse_route(verb, "/foo").should be_ok
           browse_route(verb, "/foo").body.should == "foo" unless verb == :head
         end
+
+        it "allowes calling super in helpers overwritten inside a namespace" do
+          helpers { define_method(:foo) { "foo" } }
+          app.namespace("/foo") do
+            define_method(:foo) { super().upcase }
+            send(verb) { foo }
+          end
+          browse_route(verb, "/foo").should be_ok
+          browse_route(verb, "/foo").body.should == "FOO" unless verb == :head
+        end
       end
 
     end
