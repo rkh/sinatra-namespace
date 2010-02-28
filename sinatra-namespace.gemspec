@@ -1,7 +1,7 @@
 SPEC = Gem::Specification.new do |s|
 
   # Get the facts.
-  s.name             = "sinatra-reloader"
+  s.name             = "sinatra-namespace"
   s.version          = "0.4.0.a"
   s.description      = "Adds namespaces to Sinatra, allows namespaces to have local helpers (part of BigBand)."
 
