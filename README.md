@@ -2,6 +2,8 @@ Sinatra::Namespace
 ==================
 
 Adds namespaces to [Sinatra](http://sinatrarb.com). Allows namespaces to have local helpers.
+Not wanting local helpers probably is a sign that what you really want is writing rack middleware instead.
+See alternatives section.
 
 BigBand
 -------
@@ -101,3 +103,33 @@ You can influence that behavior by setting `auto_namespace`:
 So, how does one create a namespace from a module without that auto detection? Simple:
 
     Application.make_namespace SomeModule, :prefix => "/somewhere"
+
+Alternatives
+------------
+
+Sinatra::Namespace is made for sharing some state/helpers.
+If that is no what you are looking for, you have two alternative directions.
+
+Simple prefixing, shares all state/helpers:
+
+    require "sinatra/base"
+    require "monkey"
+    
+    admin_prefix = "/this/is/the/admin/prefix"
+    get(admin_prefix) { haml :admin_index }
+    get(admin_prefix / "new_user") { haml :new_user }
+    get(admin_prefix / "admin_stuff") { haml :admin_stuff }
+
+Middleware, shares no state/helpers:
+
+    require "sinatra/base"
+    
+    class Application < Sinatra::Base
+      class AdminNamespace < Sinatra::Base
+        get("admin/prefix") { haml :admin_index }
+        get("admin/new_user") { haml :new_user }
+        get("admin/admin_stuff") { haml :admin_stuff }
+      end
+      
+      use AdminNamespace
+    end
