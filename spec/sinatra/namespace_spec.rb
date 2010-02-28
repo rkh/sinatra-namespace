@@ -112,10 +112,41 @@ describe Sinatra::Namespace do
           App::Foo.send(verb, "/bar") { "baz" }
           App::Foo.should respond_to(verb)
         end
-        
+
         it "detects prefix" do
           App::Foo.should_not respond_to(:prefix)
           App::Foo.prefix.should == "/foo"
+        end
+      end
+
+      describe :helpers do
+        it "makes helpers defined inside a namespace not available to routes outside that namespace" do
+          helpers { define_method(:foo) { 42 } }
+          app.namespace("/foo").helpers { define_method(:bar) { 42 } }
+          app.new.should respond_to(:foo)
+          app.new.should_not respond_to(:bar)
+        end
+
+        it "allowes overwriting helpers for routes within a namespace" do
+          helpers { define_method(:foo) { "foo" } }
+          define_route(verb, "/foo") { foo }
+          app.namespace("/foo") do
+            define_method(:foo) { "bar" }
+            send(verb, "/foo") { foo }
+          end
+          browse_route(verb, "/foo").should be_ok
+          browse_route(verb, "/foo/foo").should be_ok
+          unless verb == :head
+            browse_route(verb, "/foo").body.should == "foo"
+            browse_route(verb, "/foo/foo").body.should == "bar"
+          end
+        end
+
+        it "allowes accessing helpers defined outside the namespace" do
+          helpers { define_method(:foo) { "foo" } }
+          app.namespace("/foo").send(verb, "") { foo }
+          browse_route(verb, "/foo").should be_ok
+          browse_route(verb, "/foo").body.should == "foo" unless verb == :head
         end
       end
 
