@@ -77,7 +77,6 @@ module Sinatra
 
     def self.registered(klass)
       klass.register Sinatra::Sugar
-      klass.register Sinatra::AdvancedRoutes
       klass.set :merge_namespaces => false, :auto_namespace => true
     end
 
