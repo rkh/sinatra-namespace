@@ -104,6 +104,12 @@ So, how does one create a namespace from a module without that auto detection? S
 
     Application.make_namespace SomeModule, :prefix => "/somewhere"
 
+
+Installation
+------------
+
+    gem install sinatra-namespace --prerelease
+
 Alternatives
 ------------
 
