@@ -81,7 +81,7 @@ Modular style (you can of course use the `namespace` method there, too):
     end
 
 Wait, did that module turn into a namespace all by itself? No, actually it got turned into one by `Application` when it
-tried to call `prefix`, which is not defined. `Sinatra::Namspace` sets up `nested_method_missing` (from `monkey-lib`) to
+tried to call `prefix`, which is not defined. `Sinatra::Namespace` sets up `nested_method_missing` (from `monkey-lib`) to
 catch that cases.
 
 You can influence that behavior by setting `auto_namespace`:
