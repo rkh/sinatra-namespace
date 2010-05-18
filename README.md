@@ -90,7 +90,7 @@ You can influence that behavior by setting `auto_namespace`:
       # enables auto namespacing, is default
       enable :auto_namespace
       
-      # disables auto namespacing, is default
+      # disables auto namespacing
       disable :auto_namespace
       
       # triggers auto namespaceing only on prefix and get
