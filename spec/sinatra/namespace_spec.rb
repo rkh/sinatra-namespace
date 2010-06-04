@@ -27,6 +27,25 @@ describe Sinatra::Namespace do
           browse_route(verb, "/foo").should be_ok
           browse_route(verb, "/foo").body.should == "bar" unless verb == :head
         end
+
+        it "allows regular expressions" do
+          app.namespace %r{/\d\d} do
+            send(verb) { "foo" }
+            namespace %r{/\d\d} do
+              send(verb) { "bar" }
+            end
+            namespace "/0000" do
+              send(verb) { "baz" }
+            end
+          end
+          browse_route(verb, '/20').should be_ok
+          browse_route(verb, '/20').body.should == "foo" unless verb == :head
+          browse_route(verb, '/20/20').should be_ok
+          browse_route(verb, '/20/20').body.should == "bar" unless verb == :head
+          browse_route(verb, '/20/0000').should be_ok
+          browse_route(verb, '/20/0000').body.should == "baz" unless verb == :head
+          browse_route(verb, '/20/200').should_not be_ok
+        end
       end
 
       describe :make_namespace do

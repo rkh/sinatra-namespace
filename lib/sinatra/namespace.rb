@@ -47,7 +47,12 @@ module Sinatra
 
       def prefixed(verb, name = nil, options = {}, &block)
         name, options = nil, name if name.is_a? Hash and options.empty?
-        path = prefix.to_s + name.to_s
+        if prefix.is_a? Regexp or name.is_a? Regexp
+          path = /#{prefix}#{name}/
+          path = /^#{path}$/ if base.is_a? Class
+        else
+          path = prefix.to_s + name.to_s
+        end
         application.send(:define_method, "#{verb} #{path}", &block)
         unbound_method, container = application.instance_method("#{verb} #{path}"), self
         if block.arity != 0 
@@ -71,7 +76,7 @@ module Sinatra
       end
 
       def forward?(name)
-        not Sinatra::NameError::DONT_FORWARD.include? name.to_s
+        not Sinatra::Namespace::DONT_FORWARD.include? name.to_s
       end
     end
 
@@ -99,7 +104,6 @@ module Sinatra
     end
 
     def namespace(prefix, merge = nil, &block)
-      prefix = prefix.to_s
       if merge or (merge.nil? and merge_namespaces?)
         @namespaces ||= {}
         @namespaces[prefix] ||= namespace prefix, false
