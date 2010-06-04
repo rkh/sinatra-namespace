@@ -20,12 +20,24 @@ describe Sinatra::Namespace do
           browse_route(verb, "/foo/bar").body.should == "baz" unless verb == :head
         end
 
-        it "should allowes adding routes with no path" do
+        it "should allows adding routes with no path" do
           app.namespace "/foo" do
             send(verb) { "bar" }
           end
           browse_route(verb, "/foo").should be_ok
           browse_route(verb, "/foo").body.should == "bar" unless verb == :head
+        end
+
+        it "allows nesting" do
+          app.namespace "/foo" do
+            namespace "/bar" do
+              namespace "/baz" do
+                send(verb) { 'foobarbaz' }
+              end
+            end
+          end
+          browse_route(verb, "/foo/bar/baz").should be_ok
+          browse_route(verb, "/foo/bar/baz").body.should == "foobarbaz" unless verb == :head
         end
 
         it "allows regular expressions" do
