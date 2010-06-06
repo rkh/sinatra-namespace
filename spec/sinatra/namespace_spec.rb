@@ -1,6 +1,8 @@
 require File.expand_path("../../spec_helper", __FILE__)
 
 describe Sinatra::Namespace do
+  it_should_behave_like 'sinatra'
+
   [:get, :head, :post, :put, :delete].each do |verb|
     describe "HTTP #{verb.to_s.upcase}" do
       before :each do
