@@ -195,4 +195,34 @@ describe Sinatra::Namespace do
 
     end
   end
+
+  describe :errors do
+    it "should allow custom error handlers with not found" do
+      app.namespace('/en') { always_activate }
+      app.namespace('/de') do
+        always_activate
+        not_found { 'nicht gefunden' }
+      end
+      get('/foo').status.should     == 404
+      last_response.body.should_not == 'nicht gefunden'
+      get('/en/foo').status.should  == 404
+      last_response.body.should_not == 'nicht gefunden'
+      get('/de/foo').status.should  == 404
+      last_response.body.should     == 'nicht gefunden'
+    end
+
+    it "should allow custom error handlers with error" do
+      app.namespace('/en') { always_activate }
+      app.namespace('/de') do
+        always_activate
+        error(404) { 'nicht gefunden' }
+      end
+      get('/foo').status.should     == 404
+      last_response.body.should_not == 'nicht gefunden'
+      get('/en/foo').status.should  == 404
+      last_response.body.should_not == 'nicht gefunden'
+      get('/de/foo').status.should  == 404
+      last_response.body.should     == 'nicht gefunden'
+    end
+  end
 end

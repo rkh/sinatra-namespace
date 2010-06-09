@@ -5,9 +5,16 @@ require "sinatra/advanced_routes"
 
 module Sinatra
   module Namespace
-    DONT_FORWARD = %w[after before call configure disable enable error new not_found register reset! run! set use]
+    DONT_FORWARD = %w[after before call configure disable enable new register reset! run! set use template]
+
+    #if Sinatra::Base.respond_to? :filters # Sinatra::VERSION > '1.0' as soon as released
+    #end
 
     module NestedMethods
+      def errors
+        @errors ||= {}
+      end
+
       def prefix(value = nil)
         @prefix = value if value
         @prefix
@@ -29,6 +36,14 @@ module Sinatra
       def delete(name = nil, options = {}, &block); prefixed(:delete, name, options, &block); end
       def head(name = nil, options = {}, &block);   prefixed(:head,   name, options, &block); end
 
+      def error(codes=Exception, &block)
+        [*codes].each { |c| errors[c] = block }
+      end
+
+      def not_found(&block)
+        error(404, &block)
+      end
+
       def respond_to?(name)
         super or (base.respond_to? name and forward? name)
       end
@@ -38,6 +53,10 @@ module Sinatra
       end
 
       private
+
+      def always_activate
+        get(/.*/) { pass }
+      end
 
       def application
         klass = self
@@ -63,8 +82,15 @@ module Sinatra
         base.send(verb, path, options, &wrapper)
       end
 
-      def wrap(unbound_method, app, *args)
+      def prepare_instance(app)
+        return if app.is_a? self
+        base.prepare_instance app if base.respond_to? :prepare_instance
         app.extend self
+      end
+
+      def wrap(unbound_method, app, *args)
+        prepare_instance app
+        app.current_namespace = self
         unbound_method.bind(app).call(*args)
       end
 
@@ -82,7 +108,8 @@ module Sinatra
 
     def self.registered(klass)
       klass.register Sinatra::Sugar
-      klass.set :merge_namespaces => false, :auto_namespace => true
+      klass.__send__ :include, InstanceMethods
+      klass.set :merge_namespaces => false, :auto_namespace => true, :always_activate_namespaces => false
     end
 
     def self.make_namespace(mod, options = {})
@@ -99,6 +126,24 @@ module Sinatra
       mod
     end
 
+    module InstanceMethods
+      attr_accessor :current_namespace
+
+      def error_block!(*keys)
+        keys.detect do |key|
+          base = current_namespace || self.class
+          while base.respond_to? :errors
+            if block = base.errors[key]
+              # found a handler, eval and return result
+              return instance_eval(&block)
+            else
+              base = base.respond_to?(:base) ? base.base : base.superclass
+            end
+          end
+        end
+      end
+    end
+
     def make_namespace(mod, options = {})
       Sinatra::Namespace.make_namespace mod, options.merge(:base => self)
     end
@@ -111,6 +156,7 @@ module Sinatra
       else
         mod = make_namespace Module.new, :prefix => prefix
         mod.class_eval(&block) if block
+        mod.always_activate if always_activate_namespaces?
         mod
       end
     end
