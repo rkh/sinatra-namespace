@@ -108,7 +108,7 @@ So, how does one create a namespace from a module without that auto detection? S
 Installation
 ------------
 
-    gem install sinatra-namespace --prerelease
+    gem install sinatra-namespace
 
 Alternatives
 ------------
