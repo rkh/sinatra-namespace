@@ -5,10 +5,7 @@ require "sinatra/advanced_routes"
 
 module Sinatra
   module Namespace
-    DONT_FORWARD = %w[after before call configure disable enable new register reset! run! set use template]
-
-    #if Sinatra::Base.respond_to? :filters # Sinatra::VERSION > '1.0' as soon as released
-    #end
+    DONT_FORWARD = %w[call configure disable enable new register reset! run! set use template]
 
     module NestedMethods
       def errors
@@ -52,6 +49,22 @@ module Sinatra
         (super + base.methods(*args).select { |m| forward? m }).uniq
       end
 
+      def before_filters
+        @before_filters ||= []
+      end
+
+      def after_filters
+        @after_filters ||= []
+      end
+
+      def before(&block)
+        before_filters << block
+      end
+
+      def after(&block)
+        after_filters << block
+      end
+
       private
 
       def always_activate
@@ -85,6 +98,13 @@ module Sinatra
       def prepare_instance(app)
         return if app.is_a? self
         base.prepare_instance app if base.respond_to? :prepare_instance
+        class << app
+          @filters ||= {}
+          @filters[:after] ||= []
+          @after_filters ||= []
+        end
+        before_filters.each { |block| app.instance_eval(&block) }
+        after_filters.each { |block| app.singleton_class.after(&block) }
         app.extend self
       end
 
@@ -129,6 +149,22 @@ module Sinatra
 
     module InstanceMethods
       attr_accessor :current_namespace
+
+      if Sinatra::Base > '1.0' or Sinatra::Base.respond_to? :filters # master is still 1.0
+        def filter!(type, base = self.class)
+          super
+          if type == :after and base == self.class and singleton_class.after_filters
+            singleton_class.after_filters.each { |b| instance_eval(&b) }
+          end
+        end
+      else
+        def after_filter!(base = self.class)
+          super
+          if base == self.class and singleton_class.after_filters
+            singleton_class.after_filters.each { |b| instance_eval(&b) }
+          end
+        end
+      end
 
       def error_block!(*keys)
         keys.detect do |key|

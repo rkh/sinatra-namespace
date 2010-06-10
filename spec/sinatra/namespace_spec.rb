@@ -62,6 +62,28 @@ describe Sinatra::Namespace do
         end
       end
 
+      describe :filters do
+        it 'should trigger before filters for namespaces' do
+          app.before { settings.set :foo, 0 }
+          app.namespace('/foo') do
+            before { settings.set :foo, settings.foo + 1 }
+            send(verb) { }
+          end
+          browse_route(verb, '/foo').should be_ok
+          app.foo.should == 1
+        end
+        it 'should trigger after filters for namespaces' do
+          $foo = 0
+          app.after { $foo += 2 }
+          app.namespace('/foo') do
+            after { $foo += 1 }
+            send(verb) { }
+          end
+          browse_route(verb, '/foo').should be_ok
+          $foo.should == 3
+        end
+      end
+
       describe :make_namespace do
         it "extends modules make_namespace is called on" do
           mod = Module.new
