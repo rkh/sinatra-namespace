@@ -109,7 +109,7 @@ module Sinatra
     def self.registered(klass)
       klass.register Sinatra::Sugar
       klass.__send__ :include, InstanceMethods
-      klass.set :merge_namespaces => false, :auto_namespace => true, :always_activate_namespaces => false
+      klass.enable :merge_namespaces, :auto_namespace, :always_activate_namespaces
     end
 
     def self.make_namespace(mod, options = {})
@@ -123,6 +123,7 @@ module Sinatra
       mod.extend self
       mod.extend NestedMethods
       options.each { |k,v| mod.send(k, v) }
+      mod.send(:always_activate) if options[:base].always_activate_namespaces?
       mod
     end
 
@@ -153,10 +154,10 @@ module Sinatra
         @namespaces ||= {}
         @namespaces[prefix] ||= namespace prefix, false
         @namespaces[prefix].class_eval(&block) if block
+        @namespaces[prefix]
       else
         mod = make_namespace Module.new, :prefix => prefix
         mod.class_eval(&block) if block
-        mod.always_activate if always_activate_namespaces?
         mod
       end
     end
