@@ -34,6 +34,16 @@ Classic style:
     end
     
     namspace "/ruby" do
+      before { @an_important_note = "filters work, too" }
+      
+      after do
+        @an_important_note = nil # don't tell
+      end
+      
+      not_found do
+        "ruby does not know this ditty"
+      end
+      
       helpers do
         def posts
           super.where :topic => "ruby"
