@@ -150,7 +150,7 @@ module Sinatra
     module InstanceMethods
       attr_accessor :current_namespace
 
-      if Sinatra::Base > '1.0' or Sinatra::Base.respond_to? :filters # master is still 1.0
+      if Sinatra::VERSION > '1.0' or Sinatra::Base.respond_to? :filters # master is still 1.0
         def filter!(type, base = self.class)
           super
           if type == :after and base == self.class and singleton_class.after_filters
