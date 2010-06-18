@@ -129,7 +129,7 @@ If that is no what you are looking for, you have two alternative directions.
 Simple prefixing, shares all state/helpers:
 
     require "sinatra/base"
-    require "monkey"
+    require "monkey-lib"
     
     admin_prefix = "/this/is/the/admin/prefix"
     get(admin_prefix) { haml :admin_index }
