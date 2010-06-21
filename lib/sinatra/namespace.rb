@@ -153,7 +153,7 @@ module Sinatra
       if Sinatra::VERSION > '1.0' or Sinatra::Base.respond_to? :filters # master is still 1.0
         def filter!(type, base = self.class)
           super
-          if type == :after and base == self.class and singleton_class.after_filters
+          if type == :after and base == self.class and singleton_class.filters and singleton_class.after_filters
             singleton_class.after_filters.each { |b| instance_eval(&b) }
           end
         end
