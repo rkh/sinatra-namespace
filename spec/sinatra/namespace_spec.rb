@@ -247,4 +247,26 @@ describe Sinatra::Namespace do
       last_response.body.should     == 'nicht gefunden'
     end
   end
+
+  describe 'memory' do
+    before do
+      app.namespace('/foo') { get('/bar') { 'blah' }}
+    end
+
+    def measure
+      10.times { get('/foo/bar') }
+      GC.start
+      ObjectSpace.each_object.to_a.size
+    end
+
+    it 'should not leak objects' do
+      if Monkey::Engine.mri?
+        10.times do
+          first   = measure
+          second  = measure
+          first.should == second
+        end
+      end
+    end
+  end
 end
