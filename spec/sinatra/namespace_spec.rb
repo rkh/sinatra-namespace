@@ -264,10 +264,11 @@ describe Sinatra::Namespace do
 
     it 'should not leak objects' do
       if Monkey::Engine.mri?
+        measure
         10.times do
           first   = measure
           second  = measure
-          first.should == second
+          second.should <= first + 1
         end
       end
     end
