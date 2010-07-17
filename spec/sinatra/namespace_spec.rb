@@ -254,7 +254,7 @@ describe Sinatra::Namespace do
     end
 
     def measure
-      10.times { get('/foo/bar') }
+      100.times { get('/foo/bar') }
       GC.start
       # ObjectSpace.each_object.to_a.size
       sum = 0
@@ -265,10 +265,10 @@ describe Sinatra::Namespace do
     it 'should not leak objects' do
       if Monkey::Engine.mri?
         measure
-        10.times do
+        2.times do
           first   = measure
           second  = measure
-          second.should <= first + 1
+          second.should <= first + 3
         end
       end
     end
