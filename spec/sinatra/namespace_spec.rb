@@ -256,7 +256,10 @@ describe Sinatra::Namespace do
     def measure
       10.times { get('/foo/bar') }
       GC.start
-      ObjectSpace.each_object.to_a.size
+      # ObjectSpace.each_object.to_a.size
+      sum = 0
+      ObjectSpace.each_object { sum += 1 }
+      sum
     end
 
     it 'should not leak objects' do
