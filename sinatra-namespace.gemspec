@@ -2,11 +2,11 @@ SPEC = Gem::Specification.new do |s|
 
   # Get the facts.
   s.name             = "sinatra-namespace"
-  s.version          = "0.5.0"
+  s.version          = "0.5.1"
   s.description      = "Adds namespaces to Sinatra, allows namespaces to have local helpers (part of BigBand)."
 
   # BigBand depedencies
-  s.add_dependency "monkey-lib", "~> 0.5.0"
+  s.add_dependency "monkey-lib", "~> 0.5.2"
   s.add_dependency "sinatra-sugar", "~> 0.5.0"
   s.add_development_dependency "sinatra-test-helper", "~> 0.5.0"
 
