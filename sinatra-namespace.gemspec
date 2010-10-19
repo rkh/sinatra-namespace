@@ -12,7 +12,7 @@ SPEC = Gem::Specification.new do |s|
 
   # External dependencies
   s.add_dependency "sinatra", "~> 1.0"
-  s.add_development_dependency "rspec", ">= 1.3.0"
+  s.add_development_dependency "rspec", "~> 1.3.0"
 
   # Those should be about the same in any BigBand extension.
   s.authors          = ["Konstantin Haase"]

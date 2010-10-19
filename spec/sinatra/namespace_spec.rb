@@ -220,9 +220,7 @@ describe Sinatra::Namespace do
 
   describe :errors do
     it "should allow custom error handlers with not found" do
-      app.namespace('/en') { always_activate }
       app.namespace('/de') do
-        always_activate
         not_found { 'nicht gefunden' }
       end
       get('/foo').status.should     == 404
@@ -234,9 +232,7 @@ describe Sinatra::Namespace do
     end
 
     it "should allow custom error handlers with error" do
-      app.namespace('/en') { always_activate }
       app.namespace('/de') do
-        always_activate
         error(404) { 'nicht gefunden' }
       end
       get('/foo').status.should     == 404
