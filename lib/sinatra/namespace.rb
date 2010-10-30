@@ -96,7 +96,7 @@ module Sinatra
     module ModularMethods
       def setup(base, prefix = nil, options = {}, mixin = nil, &block)
         prefix, options = nil, prefix if options.empty? and prefix.respond_to? :key?
-        prefix ||= "/*"
+        prefix ||= ""
         mixin  ||= self
         mixin.class_eval { @prefix, @options, @base = prefix, options, base }
         mixin.extend ClassMethods, NestedMethods

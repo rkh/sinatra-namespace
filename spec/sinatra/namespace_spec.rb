@@ -244,6 +244,30 @@ describe Sinatra::Namespace do
     end
   end
 
+  describe 'conditions' do
+    it 'allows using conditions' do
+      app.namespace(:host_name => 'example.com') do
+        get('/') { 'yes' }
+      end
+      app.get('/') { 'no' }
+      get('/', {}, { 'HTTP_HOST' => 'example.com' })
+      last_response.body.should == 'yes'
+      get('/', {}, { 'HTTP_HOST' => 'example.org' })
+      last_response.body.should == 'no'
+    end
+
+    it 'allows combining conditions with a prefix' do
+      app.namespace('/foo', :host_name => 'example.com') do
+        get { 'yes' }
+      end
+      app.get('/foo') { 'no' }
+      get('/foo', {}, { 'HTTP_HOST' => 'example.com' })
+      last_response.body.should == 'yes'
+      get('/foo', {}, { 'HTTP_HOST' => 'example.org' })
+      last_response.body.should == 'no'
+    end
+  end
+
   describe 'memory' do
     before do
       app.namespace('/foo') { get('/bar') { 'blah' }}
