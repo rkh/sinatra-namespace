@@ -11,8 +11,8 @@ module Sinatra
       def post(name = nil, options = {}, &block)    prefixed(:post,   name, options, &block) end
       def delete(name = nil, options = {}, &block)  prefixed(:delete, name, options, &block) end
       def head(name = nil, options = {}, &block)    prefixed(:head,   name, options, &block) end
-      def before(name = nil, &block)                prefixed(:before, name,          &block) end
-      def after(name = nil, &block)                 prefixed(:after,  name,          &block) end
+      def before(name = "*", &block)                prefixed(:before, name,          &block) end
+      def after(name = "*", &block)                 prefixed(:after,  name,          &block) end
 
       def helpers(*list, &block)
         include(*list) unless list.empty?

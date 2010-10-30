@@ -185,15 +185,15 @@ describe Sinatra::Namespace do
         it "allows overwriting helpers for routes within a namespace" do
           helpers { define_method(:foo) { "foo" } }
           define_route(verb, "/foo") { foo }
-          app.namespace("/foo") do
+          app.namespace("/bar") do
             define_method(:foo) { "bar" }
             send(verb, "/foo") { foo }
           end
           browse_route(verb, "/foo").should be_ok
-          browse_route(verb, "/foo/foo").should be_ok
+          browse_route(verb, "/bar/foo").should be_ok
           unless verb == :head
             browse_route(verb, "/foo").body.should == "foo"
-            browse_route(verb, "/foo/foo").body.should == "bar"
+            browse_route(verb, "/bar/foo").body.should == "bar"
           end
         end
 
