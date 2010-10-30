@@ -54,6 +54,10 @@ module Sinatra
         options[:base] ||= self
         Namespace.make_namespace(mod, options)
       end
+
+      def make_namespace?(klass, meth)
+        true
+      end
     end
 
     module ModularMethods
@@ -86,6 +90,24 @@ module Sinatra
 
     def self.registered(klass)
       klass.extend ClassMethods
+    end
+  end
+
+  module NamespaceDetector
+    Module.send(:include, self)
+    def method_missing(meth, *args, &block)
+      return super if is_a? Class or !name
+      base = Object
+      detected = name.split('::').any? do |name|
+        base = base.const_get(name)
+        base < Sinatra::Base
+      end
+      if detected and base.make_namespace?(self, meth)
+        Sinatra::Namespace.make_namespace self, :base => base
+        send(meth, *args, &block)
+      else
+        super
+      end
     end
   end
 
