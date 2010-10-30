@@ -56,7 +56,13 @@ module Sinatra
       end
 
       def make_namespace?(klass, meth)
-        true
+        return false if !auto_namespace? or klass.is_a? NestedMethods
+        meths = NestedMethods.instance_methods.map { |m| m.to_s }
+        if auto_namespace != true
+          meths = [auto_namespace[:only]].flatten.map { |m| m.to_s } if auto_namespace.include? :only
+          [auto_namespace[:except]].flatten.each { |m| meths.delete m.to_s } if auto_namespace.include? :except
+        end
+        meths.include? meth.to_s
       end
     end
 
@@ -90,6 +96,7 @@ module Sinatra
 
     def self.registered(klass)
       klass.extend ClassMethods
+      klass.enable :auto_namespace
     end
   end
 

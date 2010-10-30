@@ -182,7 +182,7 @@ describe Sinatra::Namespace do
           app.new.should_not respond_to(:bar)
         end
 
-        it "allowes overwriting helpers for routes within a namespace" do
+        it "allows overwriting helpers for routes within a namespace" do
           helpers { define_method(:foo) { "foo" } }
           define_route(verb, "/foo") { foo }
           app.namespace("/foo") do
@@ -197,14 +197,14 @@ describe Sinatra::Namespace do
           end
         end
 
-        it "allowes accessing helpers defined outside the namespace" do
+        it "allows accessing helpers defined outside the namespace" do
           helpers { define_method(:foo) { "foo" } }
           app.namespace("/foo").send(verb, "") { foo }
           browse_route(verb, "/foo").should be_ok
           browse_route(verb, "/foo").body.should == "foo" unless verb == :head
         end
 
-        it "allowes calling super in helpers overwritten inside a namespace" do
+        it "allows calling super in helpers overwritten inside a namespace" do
           helpers { define_method(:foo) { "foo" } }
           app.namespace("/foo") do
             define_method(:foo) { super().upcase }
