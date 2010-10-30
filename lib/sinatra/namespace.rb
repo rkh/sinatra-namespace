@@ -18,12 +18,12 @@ module Sinatra
         class_eval(&block) if block
       end
 
-      private
-
-      def app
+      def settings
         return base if base.is_a? Class
-        base.app
+        base.settings
       end
+
+      private
 
       def prefixed_path(name)
         if prefix.is_a? Regexp or name.is_a? Regexp
@@ -40,7 +40,7 @@ module Sinatra
           args.unshift name
           name = nil
         end
-        options.each { |o, a| app.send(o, *a ) }
+        options.each { |o, a| settings.send(o, *a ) }
         base.send(method, prefixed_path(name), *args, &block)
       end
     end
