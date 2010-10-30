@@ -182,29 +182,29 @@ describe Sinatra::Namespace do
           app.new.should_not respond_to(:bar)
         end
 
-        it "allowes overwriting helpers for routes within a namespace" do
+        it "allows overwriting helpers for routes within a namespace" do
           helpers { define_method(:foo) { "foo" } }
           define_route(verb, "/foo") { foo }
-          app.namespace("/foo") do
+          app.namespace("/bar") do
             define_method(:foo) { "bar" }
             send(verb, "/foo") { foo }
           end
           browse_route(verb, "/foo").should be_ok
-          browse_route(verb, "/foo/foo").should be_ok
+          browse_route(verb, "/bar/foo").should be_ok
           unless verb == :head
             browse_route(verb, "/foo").body.should == "foo"
-            browse_route(verb, "/foo/foo").body.should == "bar"
+            browse_route(verb, "/bar/foo").body.should == "bar"
           end
         end
 
-        it "allowes accessing helpers defined outside the namespace" do
+        it "allows accessing helpers defined outside the namespace" do
           helpers { define_method(:foo) { "foo" } }
           app.namespace("/foo").send(verb, "") { foo }
           browse_route(verb, "/foo").should be_ok
           browse_route(verb, "/foo").body.should == "foo" unless verb == :head
         end
 
-        it "allowes calling super in helpers overwritten inside a namespace" do
+        it "allows calling super in helpers overwritten inside a namespace" do
           helpers { define_method(:foo) { "foo" } }
           app.namespace("/foo") do
             define_method(:foo) { super().upcase }
@@ -220,9 +220,7 @@ describe Sinatra::Namespace do
 
   describe :errors do
     it "should allow custom error handlers with not found" do
-      app.namespace('/en') { always_activate }
       app.namespace('/de') do
-        always_activate
         not_found { 'nicht gefunden' }
       end
       get('/foo').status.should     == 404
@@ -234,9 +232,7 @@ describe Sinatra::Namespace do
     end
 
     it "should allow custom error handlers with error" do
-      app.namespace('/en') { always_activate }
       app.namespace('/de') do
-        always_activate
         error(404) { 'nicht gefunden' }
       end
       get('/foo').status.should     == 404
