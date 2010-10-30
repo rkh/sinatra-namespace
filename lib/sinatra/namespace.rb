@@ -3,6 +3,7 @@ require 'sinatra/base'
 module Sinatra
   module Namespace
     module NestedMethods
+      DONT_FORWARD = %w[call configure disable enable new register reset! run! set use template layout]
       attr_reader :prefix, :options, :base
 
       def get(name = nil, options = {}, &block)     prefixed(:get,    name, options, &block) end
@@ -21,6 +22,11 @@ module Sinatra
       def settings
         return base if base.is_a? Class
         base.settings
+      end
+
+      def respond_to?(*args)
+        return true if super
+        base.respond_to?(*args) and forward(args.first)
       end
 
       private
@@ -42,6 +48,15 @@ module Sinatra
         end
         options.each { |o, a| settings.send(o, *a ) }
         base.send(method, prefixed_path(name), *args, &block)
+      end
+
+      def forward?(name)
+        not DONT_FORWARD.include? name.to_s
+      end
+
+      def method_missing(name, *args, &block)
+        return super unless base.respond_to? name and forward? name
+        base.send(name, *args, &block)
       end
     end
 
