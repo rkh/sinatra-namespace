@@ -29,6 +29,18 @@ module Sinatra
         base.respond_to?(*args) and forward(args.first)
       end
 
+      def errors
+        @errors ||= {}
+      end
+
+      def not_found(&block)
+        error(404, &block)
+      end
+
+      def error(codes = Exception, &block)
+        [*codes].each { |c| errors[c] = block }
+      end
+
       private
 
       def prefixed_path(name)
@@ -64,7 +76,7 @@ module Sinatra
       def namespace(prefix = nil, options = {}, &block)
         Namespace.setup(self, prefix, options, Module.new, &block)
       end
-      
+
       def make_namespace(mod, options = {})
         options[:base] ||= self
         Namespace.make_namespace(mod, options)
@@ -88,9 +100,34 @@ module Sinatra
         mixin  ||= self
         mixin.class_eval { @prefix, @options, @base = prefix, options, base }
         mixin.extend ClassMethods, NestedMethods
+        mixin.send(:define_method, :error_block!) do |*keys|
+          if block = keys.inject(nil) { |b,k| b ||= mixin.errors[k] }
+            instance_eval(&block)
+          else
+            super(*keys)
+          end
+        end
         mixin.before { extend mixin }
         mixin.class_eval(&block) if block
         mixin
+      end
+    end
+
+    module NamespaceDetector
+      Module.send(:include, self)
+      def method_missing(meth, *args, &block)
+        return super if is_a? Class or !name
+        base = Object
+        detected = name.split('::').any? do |name|
+          base = base.const_get(name)
+          base < Sinatra::Base
+        end
+        if detected and base.make_namespace?(self, meth)
+          Sinatra::Namespace.make_namespace self, :base => base
+          send(meth, *args, &block)
+        else
+          super
+        end
       end
     end
 
@@ -112,24 +149,6 @@ module Sinatra
     def self.registered(klass)
       klass.extend ClassMethods
       klass.enable :auto_namespace
-    end
-  end
-
-  module NamespaceDetector
-    Module.send(:include, self)
-    def method_missing(meth, *args, &block)
-      return super if is_a? Class or !name
-      base = Object
-      detected = name.split('::').any? do |name|
-        base = base.const_get(name)
-        base < Sinatra::Base
-      end
-      if detected and base.make_namespace?(self, meth)
-        Sinatra::Namespace.make_namespace self, :base => base
-        send(meth, *args, &block)
-      else
-        super
-      end
     end
   end
 
