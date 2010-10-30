@@ -29,8 +29,9 @@ module Sinatra
         if prefix.is_a? Regexp or name.is_a? Regexp
           path = /#{prefix}#{name}/
           path = /^#{path}$/ if base.is_a? Class
+          path
         else
-          path = prefix.to_s + name.to_s
+          prefix.to_s + name.to_s
         end
       end
 
@@ -72,9 +73,10 @@ module Sinatra
 
     def self.make_namespace(mod, options = {})
       from = caller[0] =~ /make_namespace/ ? caller[1] : caller[0]
-      #warn "#{from}: Sinatra::Namespace.make_namespace is deperacted, use Sinatra::Namespace.setup instead."
-      options[:prefix] ||= mod.name.gsub(/::/, '/').gsub(/([a-z\d]+)([A-Z][a-z])/,'\1_\2').downcase
-      setup options.delete(:base) || options.delete(:for), options.delete(:prefix), options, mod
+      base = options.delete(:base) || options.delete(:for)
+      options[:prefix] ||= '/' << mod.name.gsub(/^#{base.name}::/, '').
+        gsub(/::/, '/').gsub(/([a-z\d]+)([A-Z][a-z])/,'\1_\2').downcase
+      setup base, options.delete(:prefix), options, mod
     end
 
     def self.included(klass)
