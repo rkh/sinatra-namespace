@@ -1,7 +1,7 @@
-SPEC = Gem::Specification.new do |s|
+Gem::Specification.new do |s|
   # Get the facts.
   s.name             = "sinatra-namespace"
-  s.version          = "0.6.0"
+  s.version          = "0.6.1"
   s.description      = "Adds namespaces to Sinatra, allows namespaces to have local helpers."
 
   # Dependencies

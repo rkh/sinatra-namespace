@@ -3,6 +3,10 @@ require File.expand_path("../../spec_helper", __FILE__)
 describe Sinatra::Namespace do
   it_should_behave_like 'sinatra'
 
+  it "should delegate namespace" do
+    Sinatra::Delegator.private_instance_methods.map(&:to_s).should include("namespace")
+  end
+
   [:get, :head, :post, :put, :delete].each do |verb|
     describe "HTTP #{verb.to_s.upcase}" do
       before :each do

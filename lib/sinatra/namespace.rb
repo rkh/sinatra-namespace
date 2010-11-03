@@ -152,5 +152,6 @@ module Sinatra
     end
   end
 
+  Delegator.delegate :namespace
   register Namespace
 end
