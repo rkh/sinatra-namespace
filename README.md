@@ -20,6 +20,8 @@ Adds namespaces to [Sinatra](http://sinatrarb.com). Allows namespaces to have lo
 
 ### Nesting by condition
 
+For example by host name:
+
     require "sinatra"
     require "sinatra/namespace"
     
@@ -28,6 +30,25 @@ Adds namespaces to [Sinatra](http://sinatrarb.com). Allows namespaces to have lo
     end
     
     namespace :host_name => "api.example.com" do
+      # ...
+    end
+
+Or any other condition routes support:
+
+    require "sinatra"
+    require "sinatra/namespace"
+    
+    namespace :agent => /Songbird/ do
+      # ...
+    end
+    
+    namespace :provides => :json do
+      # ...
+    end
+
+Those can of course be combined, even with patterns:
+
+    namespace '/api', :agent => /MyAgent/, :provides => :xml do
       # ...
     end
 
@@ -144,7 +165,7 @@ If that is no what you are looking for, you have two alternative directions.
 
 Simple prefixing, shares all state/helpers:
 
-    require "sinatra/base"
+    require "sinatra"
     
     admin_prefix = "/this/is/the/admin/prefix"
     get(admin_prefix) { haml :admin_index }
