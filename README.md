@@ -132,25 +132,6 @@ Modular style (you can of course use the `namespace` method there, too):
       end
     end
 
-Wait, did that module turn into a namespace all by itself? No, actually it got turned into one by `Application` when it
-tried to call `prefix`, which is not defined.
-
-You can influence that behavior by setting `auto_namespace`:
-
-    class Application < Sinatra::Base
-      # enables auto namespacing, is default
-      enable :auto_namespace
-      
-      # disables auto namespacing
-      disable :auto_namespace
-      
-      # triggers auto namespaceing only on prefix and get
-      set :auto_namespace, :only => [:prefix, :get]
-      
-      # triggers auto namespacing on all public methods of Sinatra::Namspace::NestedMethods except prefix
-      set :auto_namespace, :except => :prefix
-    end
-
 So, how does one create a namespace from a module without that auto detection? Simple:
 
     Application.make_namespace SomeModule, :prefix => "/somewhere"
