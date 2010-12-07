@@ -103,6 +103,8 @@ Modular style (you can of course use the `namespace` method there, too):
     require "sinatra/namespace"
     
     class Application < Sinatra::Base
+      register Sinatra::Namespace
+    
       def title
         "foo bar"
       end
