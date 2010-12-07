@@ -134,7 +134,6 @@ module Sinatra
     extend ModularMethods
 
     def self.make_namespace(mod, options = {})
-      from = caller[0] =~ /make_namespace/ ? caller[1] : caller[0]
       base = options.delete(:base) || options.delete(:for)
       options[:prefix] ||= '/' << mod.name.gsub(/^#{base.name}::/, '').
         gsub(/::/, '/').gsub(/([a-z\d]+)([A-Z][a-z])/,'\1_\2').downcase
