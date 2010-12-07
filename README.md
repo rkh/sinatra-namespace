@@ -113,20 +113,22 @@ Modular style (you can of course use the `namespace` method there, too):
         Post.all
       end
       
-      module RubyPosts
-        # If you would have called that module Ruby, you would not have to set
-        # your prefix by hand, ain't that cool, huh?
-        prefix "/ruby"
-        
+      module Ruby
         def posts
           super.where :topic => "ruby"
         end
         
+        # '/ruby'
         get { haml :index }
 
+        # '/ruby/new'
         get "/new" do
           haml :new, {}, :object => Post.new(:topic => "ruby")
         end
+      end
+      
+      namespace '/admin' do
+        # ...
       end
     end
 
